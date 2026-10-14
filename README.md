@@ -4,6 +4,7 @@ Claude skills built by The Cove for car rental content work. Each folder is one 
 
 Skill	What it does
 cove-translation-sheets	Translates, audits and fixes car rental content across 14 locales (en-GB, de-DE, es-ES, es-MX, fr-FR, pt-PT, pt-BR, it-IT, da-DK, nl-NL, nb-NO, pl-PL, fi-FI, sv-SE). Includes the glossary, native-speaker corrections and an automated check script.
+
 Install a skill
 
 Claude app (web, desktop, Cowork)
