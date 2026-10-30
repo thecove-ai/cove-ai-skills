@@ -129,6 +129,41 @@ How to do it:
 Run the check script, then the 16-point checklist below across the full output. The script
 only covers mechanical checks - grammar, register and naturalness still need a read.
 
+### Step 3b: Applying reviewer feedback
+
+Review files come back with a Verdict, Suggested revision and Reviewer notes column per
+row. Treat every suggested revision as a draft to check, not text to paste. In the
+Sep 2026 Search & Results review (two reviews of the same 530 rows, one internal and one
+external), the suggestion columns contained all of these:
+
+- **Comments typed into the revision column** ("here is better to keep it like that...").
+  Pasted blindly, that comment goes live as the translation.
+- **Several alternatives in one cell**, separated by `//`, `/`, or labelled `updated:` /
+  `new:`. Pick one deliberately - the alternatives were often worse than the first option.
+- **Alternatives that broke things**: one dropped `<b>{coverName}</b>` entirely, one
+  reverted the "up to {excess}" cap fix, one reintroduced formal "usted" into a "tú" flow,
+  and two had typos ("cobetura", "limite").
+- **Verdict "OK" with text in the revision column** - read it, don't assume it's empty.
+- **Preference churn**: one reviewer made 79 changes on one tab, most with a generic note
+  ("Improved clarity and natural phrasing") and no error behind them. Applying them only
+  part of the way left the tab mixed (a new word for "location" in 6 of 11 strings).
+
+How to apply a review:
+
+1. Match rows on Key, never position.
+2. Sort each suggestion into: fixes an error (meaning, truncation, grammar, register,
+   wrong term) / applies a term decision / preference. Apply the first two. Apply
+   preferences only when they're applied to every string that uses the term.
+3. When a reviewer standardises a term, sweep the whole tab for leftovers - both reviews
+   above missed the last instance of the term they were standardising.
+4. When two reviews disagree, take the one that names a concrete error. Generic notes
+   are a weak signal; specific ones ("espejos means household mirrors") are strong.
+5. Run every chosen revision through the check script. With `--before`, every changed key
+   is flagged as a "regression" because the English didn't change - that's expected for a
+   review. Confirm the flagged set is exactly the set of keys you meant to change.
+6. Record each decision in the Glossary or the Corrections section so the next
+   translation starts from it.
+
 ### Step 4: Output
 
 - Live Google Sheet: write with the Google Sheets connector (see "Working in Google
@@ -268,9 +303,9 @@ references, driver terminology, rental company references, and pickup/return ter
 |---|---|---|
 | de-DE | Formal - Sie | Always capitalized |
 | fr-FR | Formal - vous | |
-| es-ES | Formal - usted | |
+| es-ES | Informal - tú | The booking flow uses tú. A tab in usted inside a tú flow was a reviewer blocker (Sep 2026) |
 | es-MX | Formal - usted | |
-| it-IT | Formal - Lei / impersonal | Impersonal preferred for policy text |
+| it-IT | Informal - tu | The booking flow uses tu. Don't drift into impersonal mid-flow, and never turn a call to action into a noun phrase ("Protezione per il noleggio" for "Protect your rental") |
 | pt-PT | Impersonal / 3rd person | Avoid "tu"; avoid "você" - use impersonal or "o cliente" |
 | pt-BR | você | Standard neutral register in Brazil |
 | en-GB | you | Neutral |
@@ -332,6 +367,42 @@ Strings expressing a maximum ("up to", "covers up to", "maximum of") are a recur
 of corrections. Each language has a settled commercial phrasing for a cap and the literal
 rendering usually isn't it. Check every string containing a limit or an "up to".
 
+Settled for "With an excess of up to {excess}" (Sep 2026 review, all four reviewed
+locales had it wrong and it was live):
+
+| Locale | Use | Never |
+|---|---|---|
+| es-ES | Con una franquicia máxima de {excess} | de hasta {excess} (reads as a minimum) |
+| fr-FR | Avec une franchise maximale de {excess} | une franchise jusqu'à {excess} (ungrammatical) |
+| it-IT | Con una franchigia massima di {excess} | fino a {excess} (open-ended) |
+| pt-PT | Com uma franquia máxima de {excess} | até / de até {excess} (open-ended) |
+
+For other locales, state the cap as a maximum with the local "maximum" adjective rather
+than translating "up to", and flag it for review.
+
+### Feature rows: one subject across a set
+
+Comparison tables come in sets (heading, body, included, with excess, not included). Keep
+the same subject and number across the set. "Theft and fire related charges are included"
+followed by "Theft or fire is not included" was translated as charges in one row and the
+event in the other, with singular/plural mismatches after "or". Make the "not included"
+row talk about the charges too, plural:
+
+- es-ES: Los cargos relacionados con robo o incendio no están incluidos
+- it-IT: Gli addebiti relativi a furto o incendio non sono inclusi
+- fr-FR: Les frais liés au vol ou à l'incendie ne sont pas inclus
+- pt-PT: Os encargos relacionados com roubo ou incêndio não estão incluídos
+
+Use the indefinite for a generic accident ("un accidente", "un incidente", "un
+accident") - the definite article implies one already mentioned.
+
+### Reflexives and gendered politeness
+
+- es-ES "si tu coche se daña o se roba" reads as the car stealing itself. Use "en caso de
+  daños o robo del vehículo" or "sufre daños o es robado".
+- Buttons speak in the customer's voice, so avoid politeness forms that assume a gender.
+  pt "Não, obrigado" assumes a male speaker - use "Não, prefiro correr o risco".
+
 ### Letter swaps and dropped diacritics
 
 Errors slip through as single wrong or missing letters that a skim misses, especially
@@ -361,7 +432,13 @@ word appears twice in a string, check that both are spelled the same way.
 
 Beyond Rule 1's list, reviewers specifically corrected banking and insurance terms used in
 rental contexts. When a term has both a financial-services sense and a rental sense, the
-rental sense is what customers expect.
+rental sense is what customers expect. Seen: pt-PT "cotação" (an exchange rate or share
+price) for a rental quote - use "orçamento"; es-ES "tarifa" (a rate) for a fee - use
+"tasa"; it-IT "tariffa" for a fee - use "supplemento".
+
+Household words for car parts were also corrected - see "Car parts and feature terms" in
+the Glossary (es "espejos" and pt "espelhos" are household mirrors, pt "teto" is a room
+ceiling, fr "bas de caisse" is the sill panel, not the underbody).
 
 ---
 
@@ -484,11 +561,13 @@ EXPECTED = {
 }
 REJECT = {  # insurance and wrong-domain stems, see Reject list
     "de-DE": ["versicherung","versichert","überschuss","zuzahlung","eigenanteil","gutschein"],
-    "fr-FR": ["assurance","assuré","excédent","bon cadeau"],
-    "es-ES": ["seguro","asegurado","deducible","excedente","cupón"],
+    "fr-FR": ["assurance","assuré","excédent","bon cadeau","bas de caisse","jusqu'à {excess}"],
+    "es-ES": ["seguro","asegurado","deducible","excedente","cupón","espejo","usted",
+              "hasta {excess}"],
     "es-MX": ["seguro","asegurado","franquicia","excedente"],
-    "it-IT": ["assicurazion","assicurato","eccesso","buono regalo"],
-    "pt-PT": ["seguro","segurado","excesso","dedutível","motorista","você"],
+    "it-IT": ["assicurazion","assicurato","eccesso","buono regalo","posizion","fino a {excess}"],
+    "pt-PT": ["seguro","segurado","excesso","dedutível","motorista","você","espelho",
+              "cotação","até {excess}"],
     "pt-BR": ["seguro","segurado","excesso","dedutível","aluguer","levantamento"],
     "en-GB": ["insurance","deductible","gift voucher"],
     "da-DK": ["forsikring","fradrag","gavekort"], "nb-NO": ["forsikring","fradrag","gavekort"],
@@ -611,7 +690,7 @@ one local term and grammar is re-checked (1, 4).
 
 **4 - tooltip (en → es-ES), completeness:** `A deposit of 200 EUR applies and is held on your card until the vehicle is returned.`
 
-- Wrong: `Se aplica un depósito de 200 EUR.` - the hold and its release condition are gone
+- Wrong: `Se aplica una fianza de 200 EUR.` - the hold and its release condition are gone
 - Right: the full sentence, including that the amount is held and when it is released
 
 **5 - heading (en → es-ES / it-IT):** `Search & Results` → `Búsqueda y resultados` /
@@ -664,9 +743,9 @@ live localized site: use them, but flag them in output.
 |---|---|---|---|---|---|
 | de-DE | Selbstbeteiligung | Abholung | Rückgabe | Kaution | Mietschalter |
 | fr-FR | franchise | prise en charge | restitution | caution | comptoir de location |
-| es-ES | franquicia | recogida | devolución | depósito | mostrador de alquiler |
+| es-ES | franquicia | recogida | devolución | fianza | mostrador de alquiler |
 | es-MX | deducible | recogida | devolución | depósito | mostrador de renta |
-| it-IT | franchigia | ritiro | restituzione | deposito cauzionale | banco di noleggio |
+| it-IT | franchigia | ritiro | riconsegna | deposito cauzionale | banco di noleggio |
 | pt-PT | franquia | levantamento | devolução | caução | balcão de aluguer |
 | pt-BR | franquia | retirada | devolução | depósito | balcão de locação |
 | en-GB | excess | pick-up | return / drop-off | deposit | rental counter |
@@ -676,6 +755,17 @@ live localized site: use them, but flag them in output.
 | pl-PL | udział własny | odbiór | zwrot | kaucja | stanowisko wynajmu |
 | fi-FI | omavastuu | nouto | palautus | vakuusmaksu | vuokrauspiste |
 | sv-SE | självrisk | upphämtning | återlämning | deposition | uthyrningsdisk |
+
+Decided in the Sep 2026 Search & Results review:
+
+- **es-ES deposit = fianza** (was "depósito"). It's what Spanish customers see for a rental
+  deposit, and both reviewers moved to it. Adjectives agree in the feminine ("Fianza baja",
+  filter values "Baja / Media / Alta"). es-MX keeps "depósito". A deposit is held, not
+  paid - never "la fianza que pagarás".
+- **it-IT return = riconsegna** (was "restituzione"). The live search tab uses ritiro /
+  riconsegna throughout and it's the standard Italian rental pairing.
+- **it-IT deposit = deposito cauzionale everywhere**, filter labels included ("Deposito
+  cauzionale basso"). Don't shorten it in some strings and not others.
 
 ### Core rental terms (2)
 
@@ -763,6 +853,38 @@ that have no localized name yet.
 Keep "CDW" in every language. Pair it with the gloss on first mention in a document, then
 "CDW" alone.
 
+### Car parts and feature terms
+
+From the Sep 2026 Search & Results review (es-ES, it-IT, fr-FR, pt-PT only so far). A dash
+means not yet set - use the Fallback rules and flag it.
+
+| Locale | Mirrors (car) | Roof (car) | Underbody | Loss-of-use fees | Lockout |
+|---|---|---|---|---|---|
+| es-ES | retrovisores | techo | bajos | gastos de paralización | llaves encerradas en el coche |
+| it-IT | specchietti | tetto | sottoscocca | costi di fermo tecnico | chiavi chiuse in auto |
+| fr-FR | rétroviseurs | toit | soubassement du véhicule | frais d'immobilisation | clés enfermées dans la voiture |
+| pt-PT | retrovisores | tejadilho | parte inferior da carroçaria | taxas de imobilização | chaves fechadas dentro do veículo |
+
+| Locale | Location (a place / branch) | Rating | Fee (one-off charge) | Quote | Rental policy (terms) |
+|---|---|---|---|---|---|
+| es-ES | ubicación | valoración | tasa | presupuesto | - |
+| it-IT | località | valutazione | supplemento | preventivo | condizioni di noleggio |
+| fr-FR | - | - | - | devis | - |
+| pt-PT | - | - | - | orçamento | - |
+
+Never: es "espejos" / pt "espelhos" (household mirrors), pt "teto" (a room ceiling), fr
+"bas de caisse" (the sill panel), it "posizione" for a place (it's the GPS / map-pin
+sense), es "calificación" or "puntuación" for rating, es "pérdida de uso" (a calque),
+es/it "tarifa" / "tariffa" for a fee (that's the rate), pt "cotação" for a quote. On the
+field labels, it-IT keeps "Luogo di ritiro / Luogo di riconsegna".
+
+Other UI terms settled in the same review: es-ES Specialty (vehicle category) =
+"Especiales"; es-ES sort ranges take "de" ("Precio: de mayor a menor"); es-ES Excess
+Amount = "Importe de la franquicia"; it-IT Fuel Policy = "Politica del carburante" (with
+the article); it-IT "Showing {n} cars" header = "Visualizzazione di {n} auto", never the
+same text as the "Mostra {n} auto" button; es-ES / pt-PT "primary coverage" = "cobertura
+principal" (not "primaria" / "primária").
+
 ### Reject list
 
 Never use these for rental products or rental concepts. The insurance words are correct
@@ -797,6 +919,8 @@ only for the customer's own policy, credit card benefits or a third-party insure
 | Rental counter | mostrador de alquiler | mostrador de renta |
 | Rental agreement | contrato de alquiler | contrato de renta |
 | ID document | documento de identidad oficial | identificación oficial |
+| Deposit | fianza | depósito |
+| Address form | tú | usted |
 
 ### pt-PT vs pt-BR
 
