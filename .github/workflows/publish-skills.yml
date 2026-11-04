@@ -1,0 +1,65 @@
+# Runs every time something is pushed to main (e.g. after you upload a skill on GitHub).
+# 1. Builds a versioned copy and a zip of every skill.
+# 2. Publishes them to the "dist" branch, which the cove-skills-updater skill reads.
+# 3. If any skill is new or changed, creates a GitHub Release with all the zips attached.
+#    Anyone watching the repo's releases gets an email, and
+#    https://github.com/thecove-ai/cove-ai-skills/releases/latest/download/<skill>.zip
+#    always points at the newest zip.
+name: Publish skills
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: publish-skills
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Install PyYAML
+        run: pip install --quiet pyyaml
+
+      - name: Read the last published catalog
+        run: |
+          if git fetch --quiet origin dist 2>/dev/null; then
+            git show FETCH_HEAD:catalog.json > previous-catalog.json || echo '{}' > previous-catalog.json
+          else
+            echo '{}' > previous-catalog.json
+          fi
+
+      - name: Build skills
+        run: python3 .github/scripts/publish_skills.py build previous-catalog.json
+
+      - name: Publish to the dist branch
+        run: |
+          if [ "$(cat build/changed.txt)" != "true" ]; then echo "No skill changes"; exit 0; fi
+          cd build
+          git init -q -b dist
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add catalog.json skills zips
+          git commit -q -m "Publish skills from ${GITHUB_SHA::7}"
+          git push -q -f "https://x-access-token:${{ github.token }}@github.com/${GITHUB_REPOSITORY}.git" dist
+
+      - name: Create the release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          if [ "$(cat build/changed.txt)" != "true" ]; then exit 0; fi
+          TAG="skills-$(date -u +%Y%m%d-%H%M%S)"
+          gh release create "$TAG" build/zips/*.zip \
+            --title "Cove skills $(date -u +%Y-%m-%d)" \
+            --notes-file build/notes.md \
+            --target "$GITHUB_SHA" \
+            --latest
