@@ -1,0 +1,33 @@
+{
+  "repo": "thecove-ai/cove-ai-skills",
+  "generated": "2026-11-04T03:32:40Z",
+  "skills": [
+    {
+      "name": "content-machine",
+      "version": "v2026-10-30-b4b00bc",
+      "updated": "2026-10-30",
+      "change": "Add files via upload",
+      "description": "Write, fix or adapt Cove / Auto Europe Group FAQs and copy to house style for every audience - consumer (incl. motorhomes and leasing), travel agent, My Account, chatbot and Zendesk responses. Checks new FAQs against the live set for duplicates. Use instead of the older cove-content-style skill. Trigger on any request to reword, rewrite, tidy, fix, draft, add or make on-brand an FAQ, help page, email, SMS, UI text or partner content, to copy an FAQ to another audience, or when the user mentions the style guide, house style or the FAQ Machine.",
+      "skill_md_url": "https://raw.githubusercontent.com/thecove-ai/cove-ai-skills/dist/skills/content-machine/SKILL.md",
+      "zip_url": "https://github.com/thecove-ai/cove-ai-skills/releases/latest/download/content-machine.zip"
+    },
+    {
+      "name": "cove-skills-updater",
+      "version": "v2026-11-04-81e7d8e",
+      "updated": "2026-11-04",
+      "change": "Add cove-skills-updater skill",
+      "description": "Checks the Cove skills repo (github.com/thecove-ai/cove-ai-skills) for new or updated Claude skills and installs them with one click. Use when the user asks to check for, install, update or list Cove skills, asks \"what's new in the Cove skills\", or a scheduled task asks for the Cove skills check.",
+      "skill_md_url": "https://raw.githubusercontent.com/thecove-ai/cove-ai-skills/dist/skills/cove-skills-updater/SKILL.md",
+      "zip_url": "https://github.com/thecove-ai/cove-ai-skills/releases/latest/download/cove-skills-updater.zip"
+    },
+    {
+      "name": "cove-translation-sheets",
+      "version": "v2026-10-30-b4b00bc",
+      "updated": "2026-10-30",
+      "change": "Add files via upload",
+      "description": "Translate, audit and fix Cove / Auto Europe car rental content and production translation sheets across the 14 locales (en-GB, de-DE, es-ES, es-MX, fr-FR, pt-PT, pt-BR, it-IT, da-DK, nl-NL, nb-NO, pl-PL, fi-FI, sv-SE). Use for any request to translate, review, check or fix FAQs, UI strings, policies, labels or HTML, to fill empty language columns, or to update translations after the English changed. Holds the full glossary, native-speaker corrections, an automated check script and Google Sheets connector steps. Replaces car-rental-translator.",
+      "skill_md_url": "https://raw.githubusercontent.com/thecove-ai/cove-ai-skills/dist/skills/cove-translation-sheets/SKILL.md",
+      "zip_url": "https://github.com/thecove-ai/cove-ai-skills/releases/latest/download/cove-translation-sheets.zip"
+    }
+  ]
+}
